@@ -1,6 +1,10 @@
 # terraforming
 
-Terraform configuration for my personal AWS infrastructure.
+Terraform configuration for my personal AWS infra.
+
+## Projects
+
+- [netpipe](aws/netpipe/)
 
 ## Layout
 
@@ -10,10 +14,6 @@ Terraform configuration for my personal AWS infrastructure.
 - **`modules/`** — reusable modules consumed by the projects.
 - **`applications/`** — AWS Service Catalog AppRegistry entries, used to tag and group resources per project for easier organization.
 - Any other folder under `aws/` is a standalone project. See [Projects](#projects) below.
-
-## Projects
-
-- [netpipe](aws/netpipe/)
 
 ### `localstack/`
 
