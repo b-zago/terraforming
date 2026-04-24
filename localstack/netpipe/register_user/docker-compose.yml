@@ -1,0 +1,13 @@
+services:
+  netpipe-register:
+    build:
+      context: .
+    volumes:
+      - ~/.aws:/root/.aws:ro
+    environment:
+      AWS_PROFILE: "localstack"
+      AWS_REGION: "us-east-1"
+      AWS_ENDPOINT_URL: "http://host.docker.internal:4566"
+      OWNER: "zago"
+      MAX_MB_DOWNLOAD: 4096
+      MAX_MB_UPLOAD: 4096

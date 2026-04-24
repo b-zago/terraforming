@@ -1,0 +1,10 @@
+services:
+  netpipe-register:
+    build:
+      context: .
+    volumes:
+      - ~/.aws:/root/.aws:ro
+    environment:
+      OWNER: "${OWNER}"
+      MAX_MB_DOWNLOAD: "${MAX_MB_DOWNLOAD}"
+      MAX_MB_UPLOAD: "${MAX_MB_UPLOAD}"

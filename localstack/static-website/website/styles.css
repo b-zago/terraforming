@@ -1,0 +1,35 @@
+body {
+  font-family: system-ui, sans-serif;
+  background: #f4f6f8;
+  color: #222;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  margin: 0;
+}
+
+h1 {
+  color: #2a6df4;
+  font-size: 2.5rem;
+}
+
+button {
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  background: #2a6df4;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #1a52c4;
+}
+
+#counter {
+  margin-top: 1rem;
+  font-size: 1.2rem;
+}
