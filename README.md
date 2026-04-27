@@ -22,3 +22,4 @@ Mirror of the AWS setup pointed at [LocalStack](https://www.localstack.cloud/) f
 ## Hooks
 
 To have access to the pre-push cloud sync run `git config core.hooksPath .githooks` and in root create an `.env` file with according `PRIVATE_S3_BUCKET` variable.
+Remember to ensure that all hooks are set as executable.
