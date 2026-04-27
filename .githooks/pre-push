@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source .env
+
 mapfile -t sensitive < <(find aws/ -name "*.tfstate*" -or -name "*.tfvars" -or -name "*.tfplan")
 
 length=${#sensitive[@]}

@@ -18,3 +18,7 @@ Terraform configuration for my personal AWS infra.
 ### `localstack/`
 
 Mirror of the AWS setup pointed at [LocalStack](https://www.localstack.cloud/) for local testing. Not used for anything else.
+
+## Hooks
+
+To have access to the pre-push cloud sync run `git config core.hooksPath .githooks` and in root create an `.env` file with according `PRIVATE_S3_BUCKET` variable.
