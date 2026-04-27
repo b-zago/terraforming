@@ -1,4 +1,5 @@
 #!/bin/bash
+
 source .env
 
 mapfile -t sensitive < <(aws s3 ls s3://$PRIVATE_S3_BUCKET/dev --recursive | awk '{print $4}')

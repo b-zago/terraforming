@@ -21,5 +21,8 @@ Mirror of the AWS setup pointed at [LocalStack](https://www.localstack.cloud/) f
 
 ## Hooks
 
-To have access to the pre-push cloud sync run `git config core.hooksPath .githooks` and in root create an `.env` file with according `PRIVATE_S3_BUCKET` variable.
-Remember to ensure that all hooks are set as executable.
+To have access to the pre-push cloud sync run `git config core.hooksPath .githooks` and in root create an `.env` file with according `PRIVATE_S3_BUCKET` variable. THis will upload all .tfvars and .tfstate files to the private s3.
+
+To download those files after cloning this repo (or just to sync with s3) you can use `state-sync.sh`
+
+I realize I could use the `backend` block for this but to be honest for my solo work this is good enough to have the state in a remote and secure place.
