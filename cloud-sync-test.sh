@@ -1,0 +1,21 @@
+#!/bin/bash
+
+mapfile -t sensitive < <(find aws/ -name "*.tfstate*" -or -name "*.tfvars" -or -name "*.tfplan")
+
+length=${#sensitive[@]}
+
+if [ $length -eq 0 ]; then
+	echo "Missing mandatory files - downloading from cloud..."
+else
+	echo "Uploading to cloud..."
+	for sens in "${sensitive[@]}"; do
+		echo "Uploading ${sens}..."
+		upload_output=$(aws s3 cp ${sens} s3://$PRIVATE_S3_BUCKET/dev/${sens} 2>&1)
+		if [ $? -eq 0 ]; then
+			echo "Uploaded ${sens} successfully!"
+		else
+			echo "Error uploading ${sens}!"
+		fi
+		echo ${upload_output}
+	done
+fi

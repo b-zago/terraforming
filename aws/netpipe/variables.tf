@@ -1,6 +1,5 @@
 variable "alert_email" {
-  type      = string
-  sensitive = true
+  type = string
 }
 
 variable "dynamodb_table_name" {

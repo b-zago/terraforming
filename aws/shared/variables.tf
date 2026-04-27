@@ -1,4 +1,11 @@
 variable "alert_email" {
-  type      = string
-  sensitive = true
+  type = string
+}
+
+variable "private_bucket_name" {
+  type = string
+}
+
+variable "adm_role_arn" {
+  type = string
 }
