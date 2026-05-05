@@ -5,15 +5,14 @@ terraform {
       version = "~> 6.0"
     }
   }
+
+  backend "s3" {}
 }
 
 provider "aws" {
-  region = "eu-central-1"
+  region = local.region
 
   default_tags {
-    tags = {
-      ManagedBy   = "terraform"
-      Environment = "prod"
-    }
+    tags = local.tags
   }
 }

@@ -2,13 +2,14 @@
 
 source .env
 
-mapfile -t sensitive < <(find aws/ -name "*.tfstate*" -or -name "*.tfvars" -or -name "*.tfplan")
+mapfile -t sensitive < <(find aws/ -name "*.tfvars" -or -name "*.tfplan")
 
 length=${#sensitive[@]}
 
 if [ $length -eq 0 ]; then
 	echo "Missing mandatory files locally!"
 	echo "If you are absolutely sure that you want to push those changes: git push --no-verify"
+	exit 1
 else
 	echo "Uploading to cloud..."
 	for sens in "${sensitive[@]}"; do

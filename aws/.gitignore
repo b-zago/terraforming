@@ -6,3 +6,4 @@
 *.zip
 .env
 *.tfplan
+backend.hcl
