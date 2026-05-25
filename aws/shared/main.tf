@@ -77,12 +77,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "private_bucket_config" {
   }
 }
 
-###---SHARED ECR---###
+###--REGISTRY SCAN CONFIG---###
 
-module "ecr_shared" {
-  source                       = "../modules/ecr"
-  repository_name              = "${local.name}-ecr-repo"
-  repository_admin_access_arns = [var.adm_role_arn]
-  repository_push_access_arns  = [var.github_iam_role_arn]
-  tags                         = { Module = "ecr" }
+resource "aws_ecr_registry_scanning_configuration" "ecr_registry_scan_config" {
+
+  scan_type = "BASIC"
 }

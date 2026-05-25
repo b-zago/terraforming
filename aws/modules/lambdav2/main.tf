@@ -4,7 +4,7 @@ resource "aws_lambda_function" "this" {
   memory_size   = var.memory_size
   timeout       = var.timeout
   package_type  = var.create_image_lambda ? "Image" : "Zip"
-  architectures = tolist(var.architectures)
+  architectures = [var.architectures]
 
   environment {
     variables = var.environemt
@@ -14,6 +14,10 @@ resource "aws_lambda_function" "this" {
 
   #image specific
   image_uri = var.create_image_lambda ? "${var.image_uri}:${var.latest_tag}" : null
+
+  lifecycle {
+    ignore_changes = [image_uri]
+  }
 
   dynamic "image_config" {
     for_each = var.image_config != null ? [1] : []
@@ -33,11 +37,10 @@ resource "aws_lambda_function" "this" {
 
   #cloudwatch log group depends on
 
-  depends_on = var.enable_logging ? [aws_cloudwatch_log_group.this] : null
+  depends_on = [aws_cloudwatch_log_group.this[0]]
 
 }
 
-#image specific
 data "archive_file" "this" {
   count = var.create_image_lambda ? 0 : 1
 
@@ -64,8 +67,7 @@ data "aws_iam_policy_document" "lambda_ar" {
 
 data "aws_iam_policy_document" "lambda" {
   dynamic "statement" {
-    for_each = var.allowed_permissions != null ? var.allowed_permissions : []
-
+    for_each = var.allowed_permissions == null ? {} : var.allowed_permissions
     content {
       effect    = "Allow"
       actions   = statement.value.actions

@@ -54,15 +54,15 @@ variable "image_uri" {
   default     = null
 
   validation {
-    condition     = !var.create_image_lambda || (var.create_image_lambda && var.image_uri != null)
+    condition     = !var.create_image_lambda || var.image_uri != null
     error_message = "If you want to create an image function you need to specify the image_uri variable"
   }
 }
 
 variable "latest_tag" {
-  description = "Default tag to be appended to ECR repo URL. Defaults to `latest`"
+  description = "Default tag to be appended to ECR repo URL. Defaults to `prod-latest`"
   type        = string
-  default     = "latest"
+  default     = "prod-latest"
 }
 
 variable "image_config" {

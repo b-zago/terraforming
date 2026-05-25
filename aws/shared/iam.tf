@@ -38,32 +38,7 @@ data "aws_iam_policy_document" "private_bucket_permissions" {
   }
 }
 
-###---CI ROLES---###
-
-data "aws_iam_policy_document" "github_ci_permissions" {
-  statement {
-    effect = "Allow"
-
-    actions = ["sts:AssumeRoleWithWebIdentity"]
-
-    principals {
-      type        = "Federated"
-      identifiers = [aws_iam_openid_connect_provider.github_oidc.arn]
-    }
-
-    condition {
-      test     = "StringLike"
-      variable = "token.actions.githubusercontent.com:sub"
-      values   = ["repo: b-zago/*"]
-    }
-
-    condition {
-      test     = "StringEquals"
-      variable = "token.actions.githubusercontent.com:aud"
-      values   = ["sts.amazonaws.com"]
-    }
-  }
-}
+###---OIDC PROVIDERS---###
 
 resource "aws_iam_openid_connect_provider" "github_oidc" {
   url = "https://token.actions.githubusercontent.com"
@@ -71,9 +46,4 @@ resource "aws_iam_openid_connect_provider" "github_oidc" {
   client_id_list = [
     "sts.amazonaws.com",
   ]
-}
-
-resource "aws_iam_role" "github_ci_role" {
-  name               = "${local.name}-github-ci"
-  assume_role_policy = data.aws_iam_policy_document.github_ci_permissions.json
 }

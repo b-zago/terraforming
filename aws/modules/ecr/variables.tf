@@ -95,3 +95,52 @@ variable "repository_lifecycle_policy" {
   type        = string
   default     = null
 }
+
+###---CI GH ROLE---###
+
+variable "create_gh_role" {
+  description = "Determines if OIDC github role should be created to allow GH Actions to push to this repo. GH repo name should match ECR repo name. Defaults to true"
+  type        = bool
+  default     = true
+}
+
+variable "oidc_provider_arn" {
+  description = "Arn for GH OIDC provider"
+  type        = string
+  default     = null
+
+  validation {
+    condition     = !var.create_gh_role || var.oidc_provider_arn != null
+    error_message = "You need to specify oidc_provider_arn if you're going to create gh role"
+  }
+}
+
+variable "gh_org" {
+  description = "Organization/User name of github repo. Default to b-zago for my ease of use"
+  type        = string
+  default     = "b-zago"
+}
+
+variable "gh_branches" {
+  description = "List of branches with workflow permission to push the image. Defaults to ['main', 'staging']"
+  type        = list(string)
+  default     = ["main", "staging"]
+
+}
+
+variable "gh_update_lambda_permission" {
+  description = "Should github role have access to update lambda permission. Defaults to true"
+  type        = bool
+  default     = true
+}
+
+variable "gh_lambda_arn" {
+  type    = string
+  default = null
+}
+
+variable "gh_role_name" {
+  description = "Github role name suffix that uses OIDC provider. It gets appended tight after repository_name. Defaults to `-github-ci`"
+  type        = string
+  default     = "-github-ci"
+}

@@ -1,0 +1,14 @@
+[
+  {
+    "service": "links-organizer",
+    "endpoint": "https://organizer.zagoapps.com/"
+  },
+  {
+    "service": "ships",
+    "endpoint": "https://ships.zagoapps.com/"
+  },
+  {
+    "service": "portfolio",
+    "endpoint": "https://zagoapps.com/"
+  }
+]

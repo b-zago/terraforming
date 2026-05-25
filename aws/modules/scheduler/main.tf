@@ -40,7 +40,7 @@ data "aws_iam_policy_document" "ar" {
 
 data "aws_iam_policy_document" "scheduler" {
   dynamic "statement" {
-    for_each = var.allowed_permissions != null ? var.allowed_permissions : []
+    for_each = var.allowed_permissions != null ? var.allowed_permissions : {}
 
     content {
       effect    = "Allow"

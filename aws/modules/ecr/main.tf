@@ -1,8 +1,17 @@
+locals {
+  repository_policy_has_statements = (
+    length(var.repository_pull_access_arns) > 0 ||
+    length(var.repository_lambda_pull_access_arns) > 0 ||
+    length(var.repository_push_access_arns) > 0 ||
+    length(var.repository_admin_access_arns) > 0 ||
+    length(coalesce(var.repository_policy_statements, {})) > 0
+  )
+}
 # Policy used by both private and public repositories
 data "aws_iam_policy_document" "repository" {
 
   dynamic "statement" {
-    for_each = length(var.repository_pull_access_arns) > 0 ? [1] : []
+    for_each = length(var.repository_pull_access_arns) > 0 ? var.repository_pull_access_arns : []
 
     content {
       sid    = "PrivatePullOnly"
@@ -23,7 +32,7 @@ data "aws_iam_policy_document" "repository" {
   }
 
   dynamic "statement" {
-    for_each = length(var.repository_lambda_pull_access_arns) > 0 ? [1] : []
+    for_each = length(var.repository_lambda_pull_access_arns) > 0 ? var.repository_lambda_pull_access_arns : []
 
     content {
       sid    = "PrivateLambdaPullOnly"
@@ -49,10 +58,10 @@ data "aws_iam_policy_document" "repository" {
   }
 
   dynamic "statement" {
-    for_each = length(var.repository_push_access_arns) > 0 ? [var.repository_push_access_arns] : []
+    for_each = length(var.repository_push_access_arns) > 0 ? var.repository_push_access_arns : []
 
     content {
-      sid    = "AllowPushOnly"
+      sid    = "AllowPushPullOnly"
       effect = "Allow"
 
       principals {
@@ -61,19 +70,21 @@ data "aws_iam_policy_document" "repository" {
       }
 
       actions = [
-        "ecr:GetAuthorizationToken",
+        "ecr:BatchGetImage",
         "ecr:BatchCheckLayerAvailability",
         "ecr:CompleteLayerUpload",
+        "ecr:GetDownloadUrlForLayer",
         "ecr:InitiateLayerUpload",
         "ecr:PutImage",
-        "ecr:UploadLayerPart"
+        "ecr:UploadLayerPart",
+        "ecr:GetAuthorizationToken"
       ]
 
     }
   }
 
   dynamic "statement" {
-    for_each = length(var.repository_admin_access_arns) > 0 ? [var.repository_admin_access_arns] : []
+    for_each = length(var.repository_admin_access_arns) > 0 ? var.repository_admin_access_arns : []
 
     content {
       sid    = "AllowAll"
@@ -153,6 +164,7 @@ resource "aws_ecr_repository" "this" {
 ###---REPO POLICY---###
 
 resource "aws_ecr_repository_policy" "this" {
+  count = local.repository_policy_has_statements ? 1 : 0
 
   repository = aws_ecr_repository.this.name
   policy     = data.aws_iam_policy_document.repository.json
@@ -170,12 +182,12 @@ resource "aws_ecr_lifecycle_policy" "this" {
     "rules" : [
       {
         "rulePriority" : 1,
-        "description" : "Limit image count.",
+        "description" : "Limit image count for prod images.",
         "selection" : {
           "tagStatus" : "tagged",
-          "tagPatternList" : ["prod-*", "staging-*"],
+          "tagPatternList" : ["prod-*"],
           "countType" : "imageCountMoreThan",
-          "countNumber" : 5
+          "countNumber" : 3
         },
         "action" : {
           "type" : "expire"
@@ -183,6 +195,19 @@ resource "aws_ecr_lifecycle_policy" "this" {
       },
       {
         "rulePriority" : 2,
+        "description" : "Limit image count for staging images.",
+        "selection" : {
+          "tagStatus" : "tagged",
+          "tagPatternList" : ["staging-*"],
+          "countType" : "imageCountMoreThan",
+          "countNumber" : 3
+        },
+        "action" : {
+          "type" : "expire"
+        }
+      },
+      {
+        "rulePriority" : 3,
         "description" : "Catch-all to expire every other tagged images after 14 days",
         "selection" : {
           "tagStatus" : "tagged",
@@ -196,7 +221,7 @@ resource "aws_ecr_lifecycle_policy" "this" {
         }
       },
       {
-        "rulePriority" : 3,
+        "rulePriority" : 4,
         "description" : "Don't keep any untagged images for 7 days",
         "selection" : {
           "tagStatus" : "untagged",
@@ -214,9 +239,102 @@ resource "aws_ecr_lifecycle_policy" "this" {
   }) : var.repository_lifecycle_policy
 }
 
-###--REGISTRY SCAN CONFIG---###
 
-resource "aws_ecr_registry_scanning_configuration" "this" {
 
-  scan_type = "BASIC"
+###---CI GH ROLE---###
+data "aws_iam_policy_document" "github_ar" {
+
+  dynamic "statement" {
+    for_each = var.create_gh_role ? [1] : []
+
+    content {
+
+      effect  = "Allow"
+      actions = ["sts:AssumeRoleWithWebIdentity"]
+
+      principals {
+        type        = "Federated"
+        identifiers = [var.oidc_provider_arn]
+      }
+
+      condition {
+        test     = "StringEquals"
+        variable = "token.actions.githubusercontent.com:sub"
+        values = [
+          for b in var.gh_branches :
+          "repo:${var.gh_org}/${var.repository_name}:ref:refs/heads/${b}"
+        ]
+      }
+
+      condition {
+        test     = "StringEquals"
+        variable = "token.actions.githubusercontent.com:aud"
+        values   = ["sts.amazonaws.com"]
+      }
+    }
+  }
+
 }
+
+data "aws_iam_policy_document" "github_permissions" {
+  dynamic "statement" {
+    for_each = var.create_gh_role ? [1] : []
+
+    content {
+      sid       = "GetAuthorizationToken"
+      effect    = "Allow"
+      actions   = ["ecr:GetAuthorizationToken"]
+      resources = ["*"]
+    }
+  }
+  dynamic "statement" {
+    for_each = var.create_gh_role ? [1] : []
+
+    content {
+      sid    = "GrantPushPullPermissions"
+      effect = "Allow"
+      actions = [
+        "ecr:BatchGetImage",
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:CompleteLayerUpload",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:InitiateLayerUpload",
+        "ecr:PutImage",
+        "ecr:UploadLayerPart"
+      ]
+
+      resources = [aws_ecr_repository.this.arn]
+    }
+  }
+  dynamic "statement" {
+    for_each = var.gh_update_lambda_permission ? [1] : []
+
+    content {
+      sid    = "LambdaUpdateFunctionPermissions"
+      effect = "Allow"
+      actions = [
+        "lambda:UpdateFunctionCode",
+        "lambda:GetFunction",
+        "lambda:GetFunctionConfiguration"
+      ]
+      resources = [var.gh_lambda_arn]
+    }
+
+  }
+}
+
+resource "aws_iam_role_policy" "this" {
+  count = var.create_gh_role ? 1 : 0
+
+  name   = "${aws_iam_role.this[0].name}-policy"
+  role   = aws_iam_role.this[0].id
+  policy = data.aws_iam_policy_document.github_permissions.json
+}
+
+resource "aws_iam_role" "this" {
+  count = var.create_gh_role ? 1 : 0
+
+  name               = "${var.repository_name}${var.gh_role_name}"
+  assume_role_policy = data.aws_iam_policy_document.github_ar.json
+}
+

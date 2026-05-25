@@ -17,3 +17,8 @@ output "repository_url" {
   description = "The URL of the repository"
   value       = aws_ecr_repository.this.repository_url
 }
+
+output "gh_role_arn" {
+  description = "IAM role arn for the gh OIDC"
+  value       = aws_iam_role.this[0].arn
+}
