@@ -12,3 +12,7 @@
 ![Diagram](./docs/naynwatch.diagram.svg)
 
 Code that runs on lambda along with GH workflow [here](https://github.com/b-zago/nyanwatch)
+
+## TODOs
+
+- [ ] Automate updating SSM Parameter
