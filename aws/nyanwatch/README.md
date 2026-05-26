@@ -16,3 +16,4 @@ Code that runs on lambda along with GH workflow [here](https://github.com/b-zago
 ## TODOs
 
 - [ ] Automate updating SSM Parameter
+- [ ] Make a fallback nyanify service in case it's dead
