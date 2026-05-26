@@ -1,8 +1,0 @@
-.terraform/
-.env
-*.tfstate
-*.tfstate.*
-.terraform.tfstate.lock.info
-*.tfvars
-*.zip
-*.tfplan
