@@ -5,5 +5,6 @@ locals {
     Environment = "prod"
     App         = local.name
   }
-  name = "shared"
+  name             = "shared"
+  resources_bucket = "b-zago-resources"
 }

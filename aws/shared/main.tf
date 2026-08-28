@@ -32,7 +32,7 @@ resource "aws_budgets_budget" "monthly" {
   }
 }
 
-###---S3---###
+###---PIRVATE S3---###
 
 resource "aws_s3_bucket" "private_bucket" {
   bucket = var.private_bucket_name
@@ -76,6 +76,36 @@ resource "aws_s3_bucket_lifecycle_configuration" "private_bucket_config" {
     status = "Enabled"
   }
 }
+
+###---PUBLIC S3---###
+
+resource "aws_s3_bucket" "resources_bucket" {
+  bucket = local.resources_bucket
+}
+
+resource "aws_s3_bucket_ownership_controls" "resources_bucket_ownership" {
+  bucket = aws_s3_bucket.resources_bucket.id
+  rule {
+    object_ownership = "BucketOwnerEnforced"
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "resources_bucket_pab" {
+  bucket = aws_s3_bucket.resources_bucket.id
+
+  block_public_acls       = true
+  block_public_policy     = false
+  ignore_public_acls      = true
+  restrict_public_buckets = false
+}
+
+resource "aws_s3_bucket_policy" "resources_bucket_policy" {
+  bucket = aws_s3_bucket.resources_bucket.id
+  policy = data.aws_iam_policy_document.resources_bucket_permissions.json
+
+  depends_on = [aws_s3_bucket_public_access_block.resources_bucket_pab]
+}
+
 
 ###--REGISTRY SCAN CONFIG---###
 
