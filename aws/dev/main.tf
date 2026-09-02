@@ -57,6 +57,17 @@ resource "aws_security_group" "ssh" {
   }
 }
 
+resource "aws_eip" "dev_ip" {
+  domain = "vpc"
+
+  depends_on = [module.vpc]
+}
+
+# resource "aws_eip_association" "dev" {
+#   instance_id   = aws_instance.dev.id
+#   allocation_id = aws_eip.dev_ip.id
+# }
+#
 # resource "aws_instance" "dev" {
 #   ami                    = "ami-0b8f1aedf379c35ee"
 #   instance_type          = "m8i.xlarge"
@@ -64,8 +75,7 @@ resource "aws_security_group" "ssh" {
 #   vpc_security_group_ids = [aws_security_group.ssh.id]
 #   key_name               = aws_key_pair.dev.key_name
 #
-#   source_dest_check           = false
-#   associate_public_ip_address = true
+#   source_dest_check = false
 #
 #   cpu_options {
 #     nested_virtualization = "enabled"
