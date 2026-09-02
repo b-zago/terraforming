@@ -77,7 +77,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "private_bucket_config" {
   }
 }
 
-###---PUBLIC S3---###
+###---RESOURCES S3---###
 
 resource "aws_s3_bucket" "resources_bucket" {
   bucket = local.resources_bucket
@@ -112,4 +112,13 @@ resource "aws_s3_bucket_policy" "resources_bucket_policy" {
 resource "aws_ecr_registry_scanning_configuration" "ecr_registry_scan_config" {
 
   scan_type = "BASIC"
+}
+
+
+###--- DEFAULT EBS ENCRYPTION ---###
+
+
+resource "aws_ebs_encryption_by_default" "ebs_default_encryption" {
+  enabled = true
+
 }

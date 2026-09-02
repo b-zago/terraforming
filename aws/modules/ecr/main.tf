@@ -1,3 +1,13 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 6.0"
+    }
+  }
+
+}
+
 locals {
   repository_policy_has_statements = (
     length(var.repository_pull_access_arns) > 0 ||

@@ -1,3 +1,13 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 6.0"
+    }
+  }
+
+}
+
 resource "aws_scheduler_schedule" "this" {
   name       = var.scheduler_name
   group_name = var.scheduler_group_name
