@@ -70,6 +70,11 @@ resource "aws_security_group" "ssh" {
 #   cpu_options {
 #     nested_virtualization = "enabled"
 #   }
+#
+#   user_data = <<-EOF
+#     #cloud-config
+#     hostname: pve
+#   EOF
 # }
 #
 # resource "aws_ebs_volume" "thin-pool" {
