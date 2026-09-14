@@ -3,7 +3,6 @@ output "oidc_gh_provider_arn" {
   value       = aws_iam_openid_connect_provider.github_oidc.arn
 }
 
-output "oidc_metal_staging_provider_arn" {
-  description = "OIDC metal staging provider arn"
-  value       = aws_iam_openid_connect_provider.bare_metal_staging_oidc.arn
+output "metal_oidc_arns" {
+  value = { for k, v in module.metal_oidc_providers : k => v.role_arn }
 }

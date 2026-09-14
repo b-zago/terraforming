@@ -122,3 +122,14 @@ resource "aws_ebs_encryption_by_default" "ebs_default_encryption" {
   enabled = true
 
 }
+
+module "metal_oidc_providers" {
+  for_each = toset(["staging"])
+
+  source           = "../modules/oidc_provisioner/"
+  resources_bucket = local.resources_bucket
+  region           = local.region
+  bucket_path      = "oidc/${each.key}"
+  role_name        = "metal_${each.key}_role"
+
+}
