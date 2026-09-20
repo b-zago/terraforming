@@ -23,6 +23,8 @@ data "aws_kms_key" "this" {
 data "aws_caller_identity" "this" {}
 
 data "aws_iam_policy_document" "metal_sa_ar" {
+  for_each = var.subjects
+
   statement {
     sid    = "AllowBareMetalOIDC"
     effect = "Allow"
@@ -43,7 +45,7 @@ data "aws_iam_policy_document" "metal_sa_ar" {
     condition {
       test     = "StringEquals"
       variable = "${aws_iam_openid_connect_provider.this.url}:sub"
-      values   = ["system:serviceaccount:external-secrets:external-secrets"]
+      values   = [each.value]
     }
   }
 }
@@ -66,12 +68,16 @@ data "aws_iam_policy_document" "metal_sa_permissions" {
 }
 
 resource "aws_iam_role" "this" {
+  for_each = var.subjects
+
   name               = var.role_name
-  assume_role_policy = data.aws_iam_policy_document.metal_sa_ar.json
+  assume_role_policy = data.aws_iam_policy_document.metal_sa_ar[each.key].json
 }
 
 resource "aws_iam_role_policy" "this" {
+  for_each = var.subjects
+
   name   = "${var.role_name}-policy"
-  role   = aws_iam_role.this.id
+  role   = aws_iam_role.this[each.key].id
   policy = data.aws_iam_policy_document.metal_sa_permissions.json
 }

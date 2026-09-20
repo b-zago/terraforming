@@ -15,3 +15,8 @@ variable "bucket_path" {
 variable "role_name" {
   type = string
 }
+
+variable "subjects" {
+  type        = map(string)
+  description = "Key should be the desired IAM role name with value of k8s SA sub"
+}
