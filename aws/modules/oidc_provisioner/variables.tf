@@ -12,9 +12,6 @@ variable "bucket_path" {
   description = "Root path for OIDC files"
 }
 
-variable "role_name" {
-  type = string
-}
 
 variable "subjects" {
   type = map(object({

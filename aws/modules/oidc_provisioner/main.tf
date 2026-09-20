@@ -78,7 +78,7 @@ resource "aws_iam_role" "this" {
 resource "aws_iam_role_policy" "this" {
   for_each = var.subjects
 
-  name   = "${var.role_name}-policy"
+  name   = "${each.key}-policy"
   role   = aws_iam_role.this[each.key].id
   policy = data.aws_iam_policy_document.metal_sa_permissions[each.key].json
 }
