@@ -17,6 +17,9 @@ variable "role_name" {
 }
 
 variable "subjects" {
-  type        = map(string)
-  description = "Key should be the desired IAM role name with value of k8s SA sub"
+  type = map(object({
+    sub       = string
+    ssm_paths = list(string)
+  }))
+  description = "Key should be the desired IAM role name. Paths should begin with `/`"
 }

@@ -45,12 +45,13 @@ data "aws_iam_policy_document" "metal_sa_ar" {
     condition {
       test     = "StringEquals"
       variable = "${aws_iam_openid_connect_provider.this.url}:sub"
-      values   = [each.value]
+      values   = [each.value.sub]
     }
   }
 }
 
 data "aws_iam_policy_document" "metal_sa_permissions" {
+  for_each = var.subjects
 
   statement {
     sid       = "KMSAccess"
@@ -63,14 +64,14 @@ data "aws_iam_policy_document" "metal_sa_permissions" {
     sid       = "SSMAccess"
     effect    = "Allow"
     actions   = ["ssm:GetParameter"]
-    resources = ["arn:aws:ssm:${var.region}:${data.aws_caller_identity.this.account_id}:parameter/clusters/*"]
+    resources = [for p in each.value.ssm_paths : "arn:aws:ssm:${var.region}:${data.aws_caller_identity.this.account_id}:parameter${p}"]
   }
 }
 
 resource "aws_iam_role" "this" {
   for_each = var.subjects
 
-  name               = var.role_name
+  name               = each.key
   assume_role_policy = data.aws_iam_policy_document.metal_sa_ar[each.key].json
 }
 
@@ -79,5 +80,5 @@ resource "aws_iam_role_policy" "this" {
 
   name   = "${var.role_name}-policy"
   role   = aws_iam_role.this[each.key].id
-  policy = data.aws_iam_policy_document.metal_sa_permissions.json
+  policy = data.aws_iam_policy_document.metal_sa_permissions[each.key].json
 }
