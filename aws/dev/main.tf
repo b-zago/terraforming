@@ -57,11 +57,11 @@ resource "aws_security_group" "ssh" {
   }
 }
 
-resource "aws_eip" "dev_ip" {
-  domain = "vpc"
-
-  depends_on = [module.vpc]
-}
+# resource "aws_eip" "dev_ip" {
+#   domain = "vpc"
+#
+#   depends_on = [module.vpc]
+# }
 
 # resource "aws_eip_association" "dev" {
 #   instance_id   = aws_instance.dev.id
