@@ -13,7 +13,7 @@
 
 Code that runs on lambda [here](https://github.com/b-zago/nyanwatch)
 
-GitHub workflow that I use to push docker image to ECR and update lambda function [here](https://github.com/b-zago/actions/blob/main/.github/workflows/build-push-ecr-lambda.yaml)
+GitHub workflow that I use to push docker image to ECR and update lambda function [here](https://github.com/b-zago/actions/blob/main/.github/workflows/build-push-ecr-lambda.yml)
 
 ## TODOs
 
